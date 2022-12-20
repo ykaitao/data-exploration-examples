@@ -1,18 +1,4 @@
-SHOW datestyle;
-
-DateStyle
------------
-ISO,
-DMY (1 ROW)
-ALTER DATABASE "kaggle" SET datestyle TO SQL, DMY H:M;
-
-UPDATE
-    pg_database
-SET
-    ENCODING = pg_char_to_encoding('SQL_ASCII')
-WHERE
-    datname = 'e_commerce';
-
+-- Create table
 CREATE TABLE IF NOT EXISTS e_commerce (
     InvoiceNo text NOT NULL,
     StockCode text,
@@ -26,12 +12,13 @@ CREATE TABLE IF NOT EXISTS e_commerce (
 
 DROP TABLE IF EXISTS e_commerce;
 
--- ERROR:  invalid byte sequence for encoding "UTF8": 0xa3
+-- Copy data from csv file to postgres database
+--     1. Using `ENCODING 'Latin1'` to solve the following error:
+--     ERROR:  invalid byte sequence for encoding "UTF8": 0xa3
+--     2. Put csv file into folder /tmp/ to solve permission error.
 COPY e_commerce (InvoiceNo, StockCode, Description, Quantity, InvoiceDate, UnitPrice, CustomerID, Country)
 FROM
-    '/tmp/e-commerce-data.csv' DELIMITER ',' CSV HEADER ENCODING 'UTF8';
-
-ESCAPE 'OFF';
+    '/tmp/e-commerce-data.csv' DELIMITER ',' CSV HEADER ENCODING 'Latin1';
 
 SELECT
     *
